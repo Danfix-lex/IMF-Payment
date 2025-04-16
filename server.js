@@ -1,5 +1,3 @@
-// ==== SERVER CODE (server.js) ====
-
 const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
@@ -10,6 +8,9 @@ const { body, validationResult } = require('express-validator');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// === FIX: Trust proxy for Render/hosting ===
+app.set('trust proxy', 1);  // 👈 Add this line
 
 // === MongoDB Connection ===
 mongoose.connect('mongodb+srv://IMFAdmin:Danfix1144@imf-payments.kjvk9nv.mongodb.net/IMF?retryWrites=true&w=majority', {
@@ -31,7 +32,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'danielojolex@gmail.com',
-    pass: 'asao lzhd ruvy anrs' // You should use environment variables instead
+    pass: 'asao lzhd ruvy anrs' // Consider using environment variables instead
   }
 });
 
