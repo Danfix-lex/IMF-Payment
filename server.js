@@ -1,72 +1,110 @@
+// ==== SERVER CODE (server.js) ====
+
 const express = require('express');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+const rateLimit = require('express-rate-limit');
+const basicAuth = require('express-basic-auth');
+const { body, validationResult } = require('express-validator');
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Connect to MongoDB (replace with your connection string)
+// === MongoDB Connection ===
 mongoose.connect('mongodb+srv://IMFAdmin:Danfix1144@imf-payments.kjvk9nv.mongodb.net/IMF?retryWrites=true&w=majority', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
 
-// Create a payment model
+// === MongoDB Model ===
 const Payment = mongoose.model('Payment', {
-    name: String,
-    email: String,
-    amount: Number,
-    date: { type: Date, default: Date.now }
+  name: String,
+  email: String,
+  amount: Number,
+  paymentProof: String,
+  date: { type: Date, default: Date.now }
 });
 
-// Email setup
+// === Email Setup ===
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'danielojolex@gmail.com',
-        pass: 'asao lzhd ruvy anrs'
-    }
+  service: 'gmail',
+  auth: {
+    user: 'danielojolex@gmail.com',
+    pass: 'asao lzhd ruvy anrs' // You should use environment variables instead
+  }
 });
 
+// === Middleware ===
 app.use(express.json());
 app.use(express.static('public'));
 
-app.post('/api/payment', async (req, res) => {
-    console.log('Incoming request body:', req.body); // Log the received data
+// === File Upload Setup ===
+const upload = multer({ dest: 'uploads/' });
+
+// === Rate Limiter ===
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+});
+app.use(limiter);
+
+// === Admin Basic Auth ===
+app.use('/admin', basicAuth({
+  users: { admin: 'SecurePassword123' },
+  challenge: true
+}));
+
+// === Payment Endpoint ===
+app.post(
+  '/api/payment',
+  upload.single('paymentProof'),
+  [
+    body('email').isEmail(),
+    body('amount').isFloat({ min: 1 })
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
     try {
-        // Validate required fields
-        if (!req.body.name || !req.body.email || !req.body.amount) {
-            throw new Error('Missing required fields');
-        }
+      const payment = new Payment({
+        name: req.body.name,
+        email: req.body.email,
+        amount: parseFloat(req.body.amount),
+        paymentProof: req.file ? req.file.path : null
+      });
 
-        const payment = new Payment({
-            name: req.body.name,
-            email: req.body.email,
-            amount: parseFloat(req.body.amount) // Ensure amount is a number
-        });
+      const savedPayment = await payment.save();
 
-        const savedPayment = await payment.save();
-        console.log('Saved payment:', savedPayment);
+      await transporter.sendMail({
+        from: 'danielojolex@gmail.com',
+        to: req.body.email,
+        subject: 'IMF Payment Received',
+        text: `Hello ${req.body.name},\n\nThank you for your payment of $${req.body.amount}.`
+      });
 
-        // Send email
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: req.body.email,
-            subject: 'IMF Payment Received',
-            text: `Hello ${req.body.name},\n\nThank you for your payment of $${req.body.amount}.`
-        });
-
-        res.json({ success: true, payment: savedPayment });
-
+      res.json({ success: true, payment: savedPayment });
     } catch (error) {
-        console.error('SERVER ERROR:', error); // Detailed error logging
-        res.status(500).json({
-            error: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
+      console.error('SERVER ERROR:', error);
+      res.status(500).json({
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
+  }
+);
+
+// === Get All Payments (Admin use) ===
+app.get('/api/payments', async (req, res) => {
+  const payments = await Payment.find().sort({ date: -1 });
+  res.json(payments);
 });
 
+// === Start Server ===
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
+
