@@ -10,7 +10,7 @@ document.getElementById('paymentForm').addEventListener('submit', async function
   formData.append('paymentProof', document.getElementById('paymentProof').files[0]);
 
   try {
-    const response = await fetch('http://localhost:3000/api/payment', {
+    const response = await fetch('https://imf-payment-xdde.onrender.com/api/payment', {
       method: 'POST',
       body: formData // No need to set headers for FormData
     });
