@@ -84,7 +84,7 @@ app.post(
         from: 'danielojolex@gmail.com',
         to: req.body.email,
         subject: 'IMF Payment Received',
-        text: `Hello ${req.body.name},\n\nThank you for your payment of $${req.body.amount}.`
+        text: `Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.`
       });
 
       res.json({ success: true, payment: savedPayment });
