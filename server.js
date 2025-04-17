@@ -31,8 +31,8 @@ const Payment = mongoose.model('Payment', {
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'danielojolex@gmail.com',
-    pass: 'asao lzhd ruvy anrs' // Consider using environment variables instead
+    user: 'internationalministersforumafr@gmail.com',
+    pass: 'nrzb liwm wuvk zhph' // Consider using environment variables instead
   }
 });
 
@@ -81,7 +81,7 @@ app.post(
       const savedPayment = await payment.save();
 
       await transporter.sendMail({
-        from: 'danielojolex@gmail.com',
+        from: 'internationalministersforumafr@gmail.com',
         to: req.body.email,
         subject: 'IMF Payment Received',
         text: `Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.`
