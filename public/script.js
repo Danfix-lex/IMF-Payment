@@ -6,35 +6,28 @@ document.getElementById('paymentForm').addEventListener('submit', async function
   submitBtn.disabled = true;
   submitBtn.textContent = 'Processing...';
 
-  const formData = new FormData();
-  formData.append('name', document.getElementById('name').value);
-  formData.append('email', document.getElementById('email').value);
-  formData.append('amount', document.getElementById('amount').value);
-  formData.append('paymentProof', document.getElementById('paymentProof').files[0]);
+  const formData = new FormData(this); // Simplified FormData creation
 
   try {
-    // ✅ Correct the URL to match your server endpoint
+    // ✅ Use the correct URL (ensure HTTPS & no typos)
     const response = await fetch('https://imf-payment-oxide.onrender.com/api/payment', {
       method: 'POST',
-      body: formData // FormData automatically sets Content-Type to multipart/form-data
+      body: formData // FormData handles headers automatically
     });
 
     if (!response.ok) {
-      // Try to get error message from server
-      const errorText = await response.text();
-      throw new Error(errorText || `Server error: ${response.status}`);
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || `Server error (HTTP ${response.status})`);
     }
 
     const result = await response.json();
-    console.log("Success:", result);
-    alert('Payment successful! Check your email for confirmation and receipt.');
-    document.getElementById('paymentForm').reset();
+    alert('✅ Payment successful! Check your email for confirmation.');
+    this.reset(); // Reset form on success
 
   } catch (error) {
-    console.error("Error:", error);
-    alert('Payment failed: ' + error.message);
+    console.error("Fetch Error:", error);
+    alert(`❌ Payment failed: ${error.message || "Network/server error"}`);
   } finally {
-    // Reset button state
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit Payment';
   }
