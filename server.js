@@ -80,11 +80,20 @@ app.post(
 
       const savedPayment = await payment.save();
 
+      // === Email to Admin ===
+      await transporter.sendMail({
+        from: 'internationalministersforumafr@gmail.com',
+        to: 'danielojolex@gmail.com',
+        subject: 'New IMF Payment Received',
+        text: `New payment received from ${req.body.name} (₦${req.body.amount})\nEmail: ${req.body.email}`
+      });
+
+      // === Email to Payer === (No payment proof included)
       await transporter.sendMail({
         from: 'internationalministersforumafr@gmail.com',
         to: req.body.email,
-        subject: 'IMF Payment Received',
-        text: `Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.`
+        subject: 'IMF Africa Payment Receipt',
+        text: `Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.\n\nWe have received your payment and it has been recorded.\n\nIf you have any questions, reply to this email.\n\nRegards,\nInternational Ministers Forum Africa`
       });
 
       res.json({ success: true, payment: savedPayment });
@@ -108,4 +117,3 @@ app.get('/api/payments', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-

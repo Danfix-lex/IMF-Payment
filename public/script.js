@@ -10,7 +10,7 @@ document.getElementById('paymentForm').addEventListener('submit', async function
   formData.append('paymentProof', document.getElementById('paymentProof').files[0]);
 
   try {
-    const response = await fetch('https://imf-payment-xdde.onrender.com/api/payment', {
+    const response = await fetch('International Ministers Forum Africa', {
       method: 'POST',
       body: formData // No need to set headers for FormData
     });
@@ -22,7 +22,7 @@ document.getElementById('paymentForm').addEventListener('submit', async function
 
     const result = await response.json();
     console.log("Success:", result);
-    alert('Payment details saved! Check your email for confirmation.');
+    alert('Payment successful! Check your email for confirmation and receipt.');
 
     // Optionally reset the form
     document.getElementById('paymentForm').reset();
