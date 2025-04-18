@@ -1,34 +1,34 @@
 document.getElementById('paymentForm').addEventListener('submit', async function (e) {
   e.preventDefault();
-  alert('Form submitted!');
+  
+  // Show loading state
+  const submitBtn = document.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Processing...';
 
-  // Create FormData to include text + file
-  const formData = new FormData();
-  formData.append('name', document.getElementById('name').value);
-  formData.append('email', document.getElementById('email').value);
-  formData.append('amount', document.getElementById('amount').value);
-  formData.append('paymentProof', document.getElementById('paymentProof').files[0]);
+  const formData = new FormData(this); // Simplified FormData creation
 
   try {
+    // ✅ Use the correct URL (ensure HTTPS & no typos)
     const response = await fetch('https://imf-payment-oxide.onrender.com/api/payment', {
       method: 'POST',
-      body: formData // No need to set headers for FormData
+      body: formData // FormData handles headers automatically
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Server error');
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || Server error (HTTP ${response.status}));
     }
 
     const result = await response.json();
-    console.log("Success:", result);
-    alert('Payment successful! Check your email for confirmation and receipt.');
-
-    // Optionally reset the form
-    document.getElementById('paymentForm').reset();
+    alert('✅ Payment successful! Check your email for confirmation.');
+    this.reset(); // Reset form on success
 
   } catch (error) {
-    console.error("Error:", error);
-    alert('Error: ' + error.message);
+    console.error("Fetch Error:", error);
+    alert(❌ Payment failed: ${error.message || "Network/server error"});
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Payment';
   }
 });
