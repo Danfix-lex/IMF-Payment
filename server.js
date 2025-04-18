@@ -23,6 +23,7 @@ const Payment = mongoose.model('Payment', {
   name: String,
   email: String,
   amount: Number,
+  paymentProof: String,
   date: { type: Date, default: Date.now }
 });
 
@@ -38,6 +39,9 @@ const transporter = nodemailer.createTransport({
 // === Middleware ===
 app.use(express.json());
 app.use(express.static('public'));
+
+// === File Upload Setup ===
+const upload = multer({ dest: 'uploads/' });
 
 // === Rate Limiter ===
 const limiter = rateLimit({
@@ -71,6 +75,7 @@ app.post(
         name: req.body.name,
         email: req.body.email,
         amount: parseFloat(req.body.amount),
+        paymentProof: req.file ? req.file.path : null
       });
 
       const savedPayment = await payment.save();
