@@ -103,8 +103,3 @@ app.get('/api/payments', async (req, res) => {
   const payments = await Payment.find().sort({ date: -1 });
   res.json(payments);
 });
-
-// === Start Server ===
-app.listen(PORT, () => {
-  console.log(Server running on http://localhost:${PORT});
-});
