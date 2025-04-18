@@ -23,7 +23,6 @@ const Payment = mongoose.model('Payment', {
   name: String,
   email: String,
   amount: Number,
-  paymentProof: String,
   date: { type: Date, default: Date.now }
 });
 
@@ -39,9 +38,6 @@ const transporter = nodemailer.createTransport({
 // === Middleware ===
 app.use(express.json());
 app.use(express.static('public'));
-
-// === File Upload Setup ===
-const upload = multer({ dest: 'uploads/' });
 
 // === Rate Limiter ===
 const limiter = rateLimit({
@@ -75,16 +71,24 @@ app.post(
         name: req.body.name,
         email: req.body.email,
         amount: parseFloat(req.body.amount),
-        paymentProof: req.file ? req.file.path : null
       });
 
       const savedPayment = await payment.save();
 
+      // === Email to Admin ===
+      await transporter.sendMail({
+        from: 'internationalministersforumafr@gmail.com',
+        to: 'danielojolex@gmail.com',
+        subject: 'New IMF Payment Received',
+        text: `New payment received from ${req.body.name} (₦${req.body.amount})\nEmail: ${req.body.email}`
+      });
+
+      // === Email to Payer === (No payment proof included)
       await transporter.sendMail({
         from: 'internationalministersforumafr@gmail.com',
         to: req.body.email,
-        subject: 'IMF Africa Payment Received',
-        text: Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.
+        subject: 'IMF Africa Payment Receipt',
+        text: `Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.\n\nWe have received your payment and it has been recorded.\n\nIf you have any questions, reply to this email.\n\nRegards,\nInternational Ministers Forum Africa`
       });
 
       res.json({ success: true, payment: savedPayment });
@@ -106,5 +110,6 @@ app.get('/api/payments', async (req, res) => {
 
 // === Start Server ===
 app.listen(PORT, () => {
-  console.log(Server running on http://localhost:${PORT});
+  console.log(`Server running on http://localhost:${PORT}`);
 });
+
