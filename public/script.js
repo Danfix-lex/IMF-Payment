@@ -6,27 +6,26 @@ document.getElementById('paymentForm').addEventListener('submit', async function
   submitBtn.disabled = true;
   submitBtn.textContent = 'Processing...';
 
-  const formData = new FormData(this); // Simplified FormData creation
+  const formData = new FormData(this);
 
   try {
-    // ✅ Use the correct URL (ensure HTTPS & no typos)
     const response = await fetch('https://imf-payment-oxide.onrender.com/api/payment', {
       method: 'POST',
-      body: formData // FormData handles headers automatically
+      body: formData
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.error || Server error (HTTP ${response.status}));
+      throw new Error(errorData?.error || `Server error (HTTP ${response.status})`); // Fixed backticks
     }
 
     const result = await response.json();
     alert('✅ Payment successful! Check your email for confirmation.');
-    this.reset(); // Reset form on success
+    this.reset();
 
   } catch (error) {
     console.error("Fetch Error:", error);
-    alert(❌ Payment failed: ${error.message || "Network/server error"});
+    alert(`❌ Payment failed: ${error.message || "Network/server error"}`); // Fixed backticks
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit Payment';
