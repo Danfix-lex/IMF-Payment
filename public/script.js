@@ -1,34 +1,34 @@
 document.getElementById('paymentForm').addEventListener('submit', async function (e) {
   e.preventDefault();
-  
-  // Show loading state
-  const submitBtn = document.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Processing...';
+  alert('Form submitted!');
 
-  const formData = new FormData(this); // Simplified FormData creation
+  // Create FormData to include text + file
+  const formData = new FormData();
+  formData.append('name', document.getElementById('name').value);
+  formData.append('email', document.getElementById('email').value);
+  formData.append('amount', document.getElementById('amount').value);
+  formData.append('paymentProof', document.getElementById('paymentProof').files[0]);
 
   try {
-    // ✅ Use the correct URL (ensure HTTPS & no typos)
     const response = await fetch('https://imf-payment-oxide.onrender.com/api/payment', {
       method: 'POST',
-      body: formData // FormData handles headers automatically
+      body: formData // No need to set headers for FormData
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.error || `Server error (HTTP ${response.status})`);
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Server error');
     }
 
     const result = await response.json();
-    alert('✅ Payment successful! Check your email for confirmation.');
-    this.reset(); // Reset form on success
+    console.log("Success:", result);
+    alert('Payment successful! Check your email for confirmation and receipt.');
+
+    // Optionally reset the form
+    document.getElementById('paymentForm').reset();
 
   } catch (error) {
-    console.error("Fetch Error:", error);
-    alert(`❌ Payment failed: ${error.message || "Network/server error"}`);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit Payment';
+    console.error("Error:", error);
+    alert('Error: ' + error.message);
   }
 });
