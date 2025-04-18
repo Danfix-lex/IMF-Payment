@@ -84,7 +84,7 @@ app.post(
         from: 'internationalministersforumafr@gmail.com',
         to: req.body.email,
         subject: 'IMF Africa Payment Received',
-        text: Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.
+        text: `Hello ${req.body.name},\n\nThank you for your payment of ₦${req.body.amount}.`
       });
 
       res.json({ success: true, payment: savedPayment });
