@@ -17,6 +17,7 @@
   "author": "Daniel Ojo",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "express-basic-auth": "^1.2.1",
     "express-rate-limit": "^7.5.0",
