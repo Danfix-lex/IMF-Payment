@@ -31,7 +31,7 @@ document.getElementById('paymentForm').addEventListener('submit', async function
     feedbackEl.style.display = 'block';
     feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    const response = await fetch('https://imf-payment-oxide.onrender.com/api/payment', {
+    const response = await fetch('https://imf-payment-xdde.onrender.com/api/payment', {
       method: 'POST',
       body: formData,
       headers: {

@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 // Enhanced CORS configuration
 app.use(cors({
-  origin: ['https://your-frontend-url.com', 'http://localhost:3000'], // Add all allowed origins
+  origin: ['https://imf-payment-xdde.onrender.com', 'http://localhost:3000'], // Add all allowed origins
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -62,7 +62,7 @@ const upload = multer({
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed (JPEG, PNG, etc.)'), false);
+      cb(new Error('Only image files are allowed (JPEG, PNG, PDF etc.)'), false);
     }
   }
 });
