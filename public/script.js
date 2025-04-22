@@ -53,7 +53,7 @@ document.getElementById('paymentForm').addEventListener('submit', async function
         </svg>
         <div>
           <h3>Payment Successful!</h3>
-          <p>Check your email for confirmation.</p>
+          <p>Check your email/spam for confirmation.</p>
           <p class="small">Transaction ID: ${result.payment?._id || ''}</p>
         </div>
       </div>
