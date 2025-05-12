@@ -62,6 +62,9 @@ const Payment = mongoose.model('Payment', {
   name: String,
   email: String,
   amount: Number,
+  country: String,
+  state: String,
+  phone: String,
   paymentProof: String,
   date: { type: Date, default: Date.now }
 });
@@ -107,7 +110,10 @@ app.use('/admin', basicAuth({
 app.post('/api/payment', upload.single('paymentProof'), [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-  body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least 1')
+  body('amount').isFloat({ min: 1 }).withMessage('Amount must be at least 1'),
+  body('country').trim().notEmpty().withMessage('Country is required'),
+  body('state').trim().notEmpty().withMessage('State is required'),
+  body('phone').isMobilePhone().withMessage('Valid phone number is required')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -120,6 +126,9 @@ app.post('/api/payment', upload.single('paymentProof'), [
       name: req.body.name,
       email: req.body.email,
       amount: req.body.amount,
+      country: req.body.country,
+      state: req.body.state,
+      phone: req.body.phone,
       paymentProof: req.file ? `/uploads/${req.file.filename}` : null
     });
 
